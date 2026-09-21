@@ -1,0 +1,6 @@
+pyproject.toml
+src/proposal_assistant/__init__.py
+src/proposal_assistant.egg-info/PKG-INFO
+src/proposal_assistant.egg-info/SOURCES.txt
+src/proposal_assistant.egg-info/dependency_links.txt
+src/proposal_assistant.egg-info/top_level.txt
