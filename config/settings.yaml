@@ -1,6 +1,6 @@
 models:
-  generator: "nvidia/llama-3.1-nemotron-70b-instruct"
-  embedding: "nvidia/llama-3.2-nv-embedqa-1b-v1"
+  generator: "meta/llama-3.2-11b-vision-instruct"
+  embedding: "nvidia/nemotron-3-embed-1b"
 
 retrieval:
   chunk_size: 500

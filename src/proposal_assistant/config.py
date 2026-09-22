@@ -13,10 +13,17 @@ def load_settings():
         return yaml.safe_load(f)
 
 
-def api_key():
-    key = os.getenv("NVIDIA_API_KEY")
+def generator_key():
+    key = os.getenv("NVIDIA_GENERATOR_KEY")
     if not key:
-        raise RuntimeError("NVIDIA_API_KEY is not set. Check your .env file.")
+        raise RuntimeError("NVIDIA_GENERATOR_KEY is not set. Check your .env file.")
+    return key
+
+
+def embedding_key():
+    key = os.getenv("NVIDIA_EMBEDDING_KEY")
+    if not key:
+        raise RuntimeError("NVIDIA_EMBEDDING_KEY is not set. Check your .env file.")
     return key
 
 
