@@ -34,9 +34,12 @@ customer-facing application.
 
 ## Commercials
 
-Managed Cloud Support Standard for 30 servers on a 24-month term. CSPS for
-4 accounts with the bundle discount. Compliance Reporting Pack
-subscribed quarterly. One external penetration test.
+Managed Cloud Support Standard for 30 servers on a 24-month term,
+approximately INR 26.7 lakh over the term. CSPS for 4 accounts with the
+bundle discount, approximately INR 24.2 lakh over the term. Combined
+programme value: approximately INR 50.9 lakh. Compliance Reporting Pack
+subscribed quarterly. One external penetration test, each billed
+separately per the standard rate card.
 
 ## Outcomes
 

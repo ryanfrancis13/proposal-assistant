@@ -42,7 +42,7 @@ mapping and added to the wave plan before it could cause a failed cutover.
 
 ## Commercials
 
-Total project fee approximately INR 25.3 lakh. Network circuits were paid by
+Total project fee approximately INR 36.3 lakh. Network circuits were paid by
 the customer directly to its carrier.
 
 ## Outcomes

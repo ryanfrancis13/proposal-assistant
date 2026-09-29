@@ -39,7 +39,7 @@ Six months after migration we performed a FinOps cost optimisation review.
 
 ## Commercials
 
-Total project fee approximately INR 19.7 lakh. The replatform-heavy
+Total project fee approximately INR 28.7 lakh. The replatform-heavy
 approach raised the per-workload cost relative to a pure rehost. The FinOps
 review was purchased separately at INR 95,000.
 

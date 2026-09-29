@@ -37,8 +37,9 @@ further services at that time.
 
 ## Commercials
 
-Total project fee approximately INR 13.4 lakh. This included a project
-management uplift for the compressed timeline. No managed support
+Total project fee approximately INR 20.9 lakh under the standard rate card.
+The compressed timeline required a project management uplift beyond the
+standard rate, which is reflected in the total. No managed support
 subscription was purchased.
 
 ## Outcomes

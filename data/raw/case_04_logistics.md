@@ -42,9 +42,11 @@ databases moved together.
 
 ## Commercials
 
-Total project fee approximately INR 68.9 lakh. The customer took Managed
-Cloud Support Essential for 133 servers on a 12-month term, planning to
-review the tier after the first year.
+Total project fee approximately INR 85.6 lakh, reflecting the larger estate
+and the two-squad parallel delivery model. The customer took Managed Cloud
+Support Essential for 133 servers on a 12-month term, approximately INR
+38.3 lakh over the term. Combined programme value: approximately INR 123.9
+lakh.
 
 ## Outcomes
 

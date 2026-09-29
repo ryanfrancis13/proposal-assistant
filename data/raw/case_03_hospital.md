@@ -39,9 +39,12 @@ the full 14-day rollback window on the hospital information system.
 
 ## Commercials
 
-Total project fee approximately INR 22.4 lakh, including an additional
-scoped data transfer component for the radiology archive. Managed Cloud
-Support Standard for 35 servers on a 12-month term.
+Total project fee approximately INR 30.8 lakh under the standard rate card,
+plus a separately scoped data transfer component for the radiology archive
+not covered by the standard rate card. Managed Cloud Support Standard for
+35 servers on a 12-month term, approximately INR 16.4 lakh over the term.
+Combined programme value, excluding the radiology data transfer add-on:
+approximately INR 47.2 lakh.
 
 ## Outcomes
 

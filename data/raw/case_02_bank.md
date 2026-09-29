@@ -44,9 +44,11 @@ because of the 24x7 requirement for incident response.
 
 ## Commercials
 
-Total project fee approximately INR 17.6 lakh. Post-migration, Managed
-Cloud Support Premium for 28 servers and CSPS for 3 cloud accounts on a
-24-month term.
+Total project fee approximately INR 27.8 lakh. Post-migration, Managed
+Cloud Support Premium for 28 servers (approximately INR 39.6 lakh over 24
+months) and CSPS for 3 cloud accounts with the bundle discount applied
+(approximately INR 18.1 lakh over 24 months). Combined programme value:
+approximately INR 85.5 lakh.
 
 ## Outcomes
 

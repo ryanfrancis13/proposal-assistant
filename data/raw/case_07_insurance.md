@@ -36,8 +36,10 @@ findings during the first 60 days. Ongoing posture scanning covered all
 ## Commercials
 
 Onboarding assessment INR 2.1 lakh (one time). Managed Cloud Support
-Premium for 64 servers on a 24-month term. CSPS for 7 accounts, with the
-bundle discount applied.
+Premium for 64 servers on a 24-month term, approximately INR 90.5 lakh over
+the term. CSPS for 7 accounts, with the bundle discount applied,
+approximately INR 39.7 lakh over the term. Combined programme value,
+excluding the onboarding assessment: approximately INR 130.2 lakh.
 
 ## Outcomes
 

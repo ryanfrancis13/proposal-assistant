@@ -41,9 +41,10 @@ promotional calendar.
 ## Commercials
 
 Migration fees (rehost 30 servers, replatform 6 workloads), assessment, and
-landing zone came to a total project fee of approximately INR 21.2 lakh.
+landing zone came to a total project fee of approximately INR 31.2 lakh.
 Kestrel then subscribed to Managed Cloud Support Standard for 36 servers on
-a 24-month term.
+a 24-month term, approximately INR 32.0 lakh over the term. Combined
+programme value: approximately INR 63.2 lakh.
 
 ## Outcomes
 
