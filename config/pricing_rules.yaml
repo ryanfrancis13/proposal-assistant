@@ -1,0 +1,16 @@
+rules:
+  - id: R1
+    description: "Managed support requires a minimum of 20 servers"
+    hard: true
+  - id: R2
+    description: "Managed support minimum term is 12 months"
+    hard: true
+  - id: R3
+    description: "Discount on managed support term must not exceed 5 percent, and only applies at 24 months or more"
+    hard: true
+  - id: R4
+    description: "CSPS bundle discount (10 percent) only applies when Managed Support tier is Standard or Premium"
+    hard: true
+  - id: R5
+    description: "Total quote must not be discounted below 70 percent of the undiscounted subtotal"
+    hard: false
