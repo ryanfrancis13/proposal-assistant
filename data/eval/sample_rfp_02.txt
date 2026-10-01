@@ -1,0 +1,5 @@
+We're a hospital group and need to move our systems to Google Cloud
+Platform. We also run SAP HANA for some financial reporting and would
+like that migrated too. Can you confirm you're HIPAA compliant? We have
+about 35 servers. Budget is tight, so we'd want at least a 20 percent
+discount on your standard rates.

@@ -1,0 +1,6 @@
+We are a mid-sized retail company looking to move our infrastructure to
+the cloud. We have approximately 40 servers running our inventory and
+point-of-sale systems. We need this done within 4 months. We would also
+like to know about your ongoing support options after migration, and
+whether you can help with security compliance reporting. Please include
+pricing in your response.
