@@ -183,3 +183,52 @@ def validate(quote: Quote) -> Quote:
 
 def has_hard_violation(quote: Quote) -> bool:
     return any(is_hard for _, is_hard, _ in quote.violations)
+
+
+from proposal_assistant.pricing import MigrationLine, Quote, SupportLine, SupportTier, validate
+
+
+def build_quote_from_inputs(inputs: dict) -> tuple[Quote, list[str]]:
+    assumptions = []
+
+    server_count = inputs.get("server_count") or 0
+    rehost = inputs.get("rehost_servers")
+    replatform = inputs.get("replatform_workloads")
+
+    if rehost is None and replatform is None and server_count:
+        rehost = server_count
+        replatform = 0
+        assumptions.append(
+            f"Rehost/replatform split not specified; assumed all {server_count} "
+            f"servers as rehost for this estimate."
+        )
+    else:
+        rehost = rehost or 0
+        replatform = replatform or 0
+
+    clouds = inputs.get("clouds") or 1
+    if inputs.get("clouds") is None:
+        assumptions.append("Cloud count not specified; assumed single cloud.")
+
+    migration = MigrationLine(
+        server_count=server_count,
+        rehost_servers=rehost,
+        replatform_workloads=replatform,
+        clouds=clouds,
+    ) if server_count else None
+
+    support = None
+    if inputs.get("wants_support"):
+        term = inputs.get("support_term_months") or 12
+        if inputs.get("support_term_months") is None:
+            assumptions.append("Support term not specified; assumed 12-month minimum term.")
+        support = SupportLine(
+            tier=SupportTier.STANDARD,
+            server_count=server_count,
+            term_months=term,
+        )
+        assumptions.append("Support tier not specified; assumed Standard tier for this estimate.")
+
+    quote = Quote(migration=migration, support=support)
+    validate(quote)
+    return quote, assumptions
