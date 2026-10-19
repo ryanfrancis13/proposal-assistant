@@ -24,6 +24,19 @@ class Requirement:
 
 
 @dataclass(frozen=True)
+class QuoteInputs:
+    server_count: int | None = None
+    rehost_servers: int | None = None
+    replatform_workloads: int | None = None
+    cloud_provider: str | None = None
+    cloud_count: int | None = None
+    support_requested: bool | None = None
+    support_term_months: int | None = None
+    negotiated_discount_pct: float | None = None
+    csps_accounts: int | None = None
+
+
+@dataclass(frozen=True)
 class Evidence:
     evidence_id: str
     chunk_id: str
@@ -59,6 +72,15 @@ class SectionVerification:
     requirement_id: str
     passed: bool
     issues: list[VerificationIssue] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class VerificationContext:
+    evidence: tuple[Evidence, ...] = ()
+    allowed_amounts: tuple[str, ...] = ()
+    documented_terms: tuple[str, ...] = ()
+    deadline_weeks: int | None = None
+    minimum_documented_weeks: int | None = None
 
 
 @dataclass
