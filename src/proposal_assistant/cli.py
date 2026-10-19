@@ -40,6 +40,13 @@ def main() -> None:
     passed = sum(item.passed for item in result.repair.verifications)
     print(f"Wrote {args.output}")
     print(f"Verified sections: {passed}/{len(result.repair.verifications)}")
+    for verification in result.repair.verifications:
+        if not verification.passed:
+            issue_text = "; ".join(
+                f"{issue.check_id}: {issue.detail}"
+                for issue in verification.issues
+            )
+            print(f"Failed {verification.requirement_id}: {issue_text}")
     print(f"NIM calls: {generator.calls}")
 
 
