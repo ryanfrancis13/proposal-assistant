@@ -1,10 +1,13 @@
 from dataclasses import dataclass
+import os
 from pathlib import Path
 
+from dotenv import load_dotenv
 import yaml
 
 
 ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(ROOT / ".env")
 
 
 @dataclass(frozen=True)
@@ -27,3 +30,14 @@ def load_settings(path: Path | None = None) -> Settings:
         chunk_size=int(retrieval["chunk_size"]),
         top_k=int(retrieval.get("top_k", 5)),
     )
+
+
+def nim_base_url() -> str:
+    return os.getenv("NIM_BASE_URL", "https://integrate.api.nvidia.com/v1")
+
+
+def generator_api_key() -> str:
+    key = os.getenv("NVIDIA_GENERATOR_KEY")
+    if not key:
+        raise RuntimeError("NVIDIA_GENERATOR_KEY is not set; add it to .env")
+    return key

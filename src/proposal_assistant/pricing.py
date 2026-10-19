@@ -40,6 +40,27 @@ def money(value: Decimal) -> Decimal:
     return value.quantize(D("0.01"), rounding=ROUND_HALF_UP)
 
 
+def format_inr(value: Decimal) -> str:
+    """Format a Decimal with Indian lakh/crore digit grouping."""
+    amount = money(value)
+    whole, fraction = f"{amount:.2f}".split(".")
+    sign = ""
+    if whole.startswith("-"):
+        sign = "-"
+        whole = whole[1:]
+    if len(whole) <= 3:
+        grouped = whole
+    else:
+        last_three = whole[-3:]
+        leading = whole[:-3]
+        groups = []
+        while leading:
+            groups.insert(0, leading[-2:])
+            leading = leading[:-2]
+        grouped = ",".join(groups + [last_three])
+    return f"{sign}{grouped}.{fraction}"
+
+
 @dataclass(frozen=True)
 class MigrationLine:
     server_count: int
@@ -169,7 +190,10 @@ def _bundle_eligibility(quote: Quote) -> tuple[bool, str]:
 
 def _price_floor(quote: Quote) -> tuple[bool, str]:
     floor = money(quote.list_total() * D("0.80"))
-    return quote.total() >= floor, f"total {quote.total():,.2f} is below the 80% price floor of {floor:,.2f}"
+    return quote.total() >= floor, (
+        f"total {format_inr(quote.total())} is below the 80% price floor "
+        f"of {format_inr(floor)}"
+    )
 
 
 def _approval_flag(quote: Quote) -> tuple[bool, str]:
