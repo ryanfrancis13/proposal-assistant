@@ -10,6 +10,7 @@ from proposal_assistant.pipeline import run_pipeline
 
 
 CHECK_IDS = ("V1", "V2", "V3", "V4", "V5", "V6", "V7")
+GENERATION_FAILURE_ID = "V0"
 
 
 def _wilson_interval(successes: int, total: int, z: float = 1.96) -> tuple[float, float]:
@@ -114,13 +115,30 @@ def run_experiment_cases(
         for condition in conditions:
             for run_index in range(1, repeats + 1):
                 generator = generator_factory()
-                result = run_pipeline(
-                    rfp_text,
-                    generator,
-                    raw_dir,
-                    settings=settings,
-                    condition=condition,
-                )
+                try:
+                    result = run_pipeline(
+                        rfp_text,
+                        generator,
+                        raw_dir,
+                        settings=settings,
+                        condition=condition,
+                    )
+                except Exception as exc:
+                    # One malformed/API-failed trial must not discard the rest
+                    # of a long experiment. Record it as a failed V0 trial.
+                    records.append(
+                        ExperimentRecord(
+                            rfp_id=rfp_id,
+                            condition=condition,
+                            run_index=run_index,
+                            strict_compliance=False,
+                            loose_compliance=0.0,
+                            violation_counts={GENERATION_FAILURE_ID: 1},
+                            llm_calls=int(getattr(generator, "calls", 0)),
+                            error=f"{type(exc).__name__}: {exc}",
+                        )
+                    )
+                    continue
                 verifications = result.repair.verifications
                 total_checks = len(verifications) * len(CHECK_IDS)
                 failed_checks = sum(

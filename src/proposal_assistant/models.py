@@ -98,6 +98,7 @@ class ExperimentRecord:
     loose_compliance: float
     violation_counts: dict[str, int]
     llm_calls: int
+    error: str | None = None
 
 
 def as_jsonable(value: Any) -> Any:

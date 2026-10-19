@@ -62,3 +62,29 @@ def test_write_results_creates_json_and_csv(tmp_path):
     assert (tmp_path / "records.json").exists()
     assert (tmp_path / "summary.json").exists()
     assert (tmp_path / "summary.csv").exists()
+
+
+def test_runner_records_generation_failure_without_aborting(tmp_path):
+    rfp = tmp_path / "case.txt"
+    rfp.write_text("We have approximately 40 servers.", encoding="utf-8")
+
+    class FailingGenerator:
+        calls = 1
+
+        def generate(self, prompt):
+            raise ValueError("claim cites evidence that was not supplied")
+
+    records = run_experiment(
+        [rfp],
+        ROOT / "data" / "raw",
+        settings=__import__("proposal_assistant.config", fromlist=["load_settings"]).load_settings(),
+        generator_factory=FailingGenerator,
+        repeats=1,
+        conditions=(RepairCondition.NONE,),
+    )
+
+    assert len(records) == 1
+    assert records[0].strict_compliance is False
+    assert records[0].loose_compliance == 0.0
+    assert records[0].violation_counts == {"V0": 1}
+    assert records[0].error.startswith("ValueError:")
