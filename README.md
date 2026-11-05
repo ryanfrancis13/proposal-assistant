@@ -11,9 +11,9 @@ This repository is a research and engineering project built around a fictional c
 
 ---
 
-## Why We Built This (The Research Question)
+## Motivation & Research Question
 
-Alongside the working application, this repo powers an experimental study comparing three ways of handling compliance failures in LLM-generated proposals:
+Alongside the working application, this project was built to evaluate three different ways of handling compliance failures in LLM-generated proposals:
 
 - **`none` (Single-Pass Baseline)**: Draft each section once and keep whatever the model outputs.
 - **`whole_document` (Blind Resampling)**: If any section fails verification, regenerate the entire proposal once from scratch.
