@@ -29,12 +29,17 @@ def extract_quote_inputs(rfp_text: str) -> QuoteInputs:
         cloud_count = 1
 
     support_requested = None
-    if re.search(r"\b(ongoing|managed)\s+support\b|\bsupport options?\b", rfp_text, re.I):
+    if re.search(
+        r"\b(ongoing|managed)\s+support\b|\bsupport options?\b"
+        r"|\b24/7(?:/365)?\b|\b24x7\b|\brecurring monthly management\b|\bpatch management\b",
+        rfp_text,
+        re.I,
+    ):
         support_requested = True
 
     return QuoteInputs(
         server_count=_first_int(
-            r"(?:about|approximately|around|move|have|with)?\s*(\d+)\s+servers?",
+            r"(?:about|approximately|around|move|have|with)?\s*(\d+)\s+(?:[\w-]+\s+){0,6}servers?",
             rfp_text,
         ),
         cloud_provider=provider,
@@ -42,7 +47,11 @@ def extract_quote_inputs(rfp_text: str) -> QuoteInputs:
         support_requested=support_requested,
         support_term_months=_first_int(r"(\d+)[- ]month\s+(?:support\s+)?term", rfp_text),
         negotiated_discount_pct=_first_percent(
-            r"(?:(?:at least|minimum of)\s+)?(\d+(?:\.\d+)?)\s*%\s*discount",
+            r"(?:(?:at least|minimum of)\s+)?(?:a\s+)?(\d+(?:\.\d+)?)\s*(?:%|percent)\s*discount",
+            rfp_text,
+        ),
+        csps_accounts=_first_int(
+            r"(\d+)\s+(?:csps|cloud)\s+accounts?",
             rfp_text,
         ),
     )
@@ -67,16 +76,33 @@ def extract_requirements(rfp_text: str) -> list[Requirement]:
 
 def _topic_for(sentence: str) -> str:
     lowered = sentence.lower()
-    if "server" in lowered or "infrastructure" in lowered:
-        return "estate size"
-    if "deadline" in lowered or "within" in lowered or "month" in lowered:
+    if (
+        "deadline" in lowered
+        or "within" in lowered
+        or (re.search(r"\b(?:months?|weeks?)\b", lowered) and "term" not in lowered)
+    ):
         return "timeline"
-    if "support" in lowered:
-        return "managed support"
-    if "security" in lowered or "compliance" in lowered or "hipaa" in lowered:
+    if "security" in lowered or "compliance" in lowered or "hipaa" in lowered or "iso 27001" in lowered or "soc 2" in lowered:
         return "security and compliance"
-    if "discount" in lowered or "budget" in lowered or "pricing" in lowered:
+    if (
+        "discount" in lowered
+        or "budget" in lowered
+        or "pricing" in lowered
+        or "cost" in lowered
+        or "fee" in lowered
+    ):
         return "commercials"
+    if (
+        "support" in lowered
+        or "monitoring" in lowered
+        or "patch" in lowered
+        or "disaster recovery" in lowered
+        or "uptime" in lowered
+        or "sla" in lowered
+    ):
+        return "managed support"
     if "cloud" in lowered or "sap" in lowered:
         return "platform"
+    if "server" in lowered or "infrastructure" in lowered:
+        return "estate size"
     return "general requirement"

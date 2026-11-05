@@ -24,7 +24,8 @@ class NIMGenerator:
     """OpenAI-compatible client for a configured NVIDIA NIM generator."""
 
     model: str
-    timeout: float = 60.0
+    timeout: float = 45.0
+    max_tokens: int = 3000
     calls: int = 0
 
     def __post_init__(self) -> None:
@@ -32,6 +33,7 @@ class NIMGenerator:
             api_key=generator_api_key(),
             base_url=nim_base_url(),
             timeout=self.timeout,
+            max_retries=0,
         )
 
     def generate(self, prompt: str) -> str:
@@ -39,12 +41,16 @@ class NIMGenerator:
         response = self._client.chat.completions.create(
             model=self.model,
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=700,
+            max_tokens=self.max_tokens,
             response_format={"type": "json_object"},
         )
         content = response.choices[0].message.content
         if not content:
-            raise RuntimeError("NVIDIA NIM returned an empty generation")
+            finish_reason = response.choices[0].finish_reason
+            raise RuntimeError(
+                f"NVIDIA NIM returned no final content (finish_reason={finish_reason}); "
+                "increase max_tokens for reasoning models"
+            )
         return content
 
 
@@ -156,14 +162,24 @@ def draft_section(
             "\nThe previous section failed these deterministic checks. "
             "Repair only these problems:\n"
             + "\n".join(f"- {item}" for item in repair_feedback)
-            + "\n"
+            + "\nRepair rules:\n"
+            "- Do not cite any non-current source (such as case_10_govt.md).\n"
+            "- If status is 'answered', 'gaps' MUST be []. If gaps exist, use status 'partial' or 'cannot_fulfil'.\n"
+            "- If status is 'no_evidence', 'claims' MUST be [].\n"
+            "- Every item in 'gaps' MUST start with 'Not covered in our documents: '.\n"
+            "- Do not claim unsupported capabilities (GCP, Google Cloud, SAP HANA, mainframe, HIPAA) unless stating Meridian does not support them.\n"
+            "- Do not use guarantee language ('guarantee', 'guaranteed', 'will achieve', 'will reduce'), unapproved INR amounts, or discounts above 15%.\n"
         )
     prompt = f"""Draft one proposal section for Meridian Cloudworks.
 
 Requirement: {requirement.detail}
 
 Use only the evidence below. Every claim must cite one or more evidence IDs.
+Write 2 to 4 concise, directly relevant sentences in "claims" that state Meridian's documented capabilities, scope, or policy in response to this Requirement (even if status is "partial" or "cannot_fulfil", include at least one cited claim explaining what Meridian does support).
+Do not include unrelated case studies or policy rules that the Requirement did not ask about.
 Do not invent prices, dates, capabilities, certifications, or guarantees.
+If the evidence addresses the Requirement, set "status" to "answered" and "gaps" to [].
+Only include a "gaps" entry if the Requirement explicitly asks for something unsupported or absent in the evidence.
 Return only this JSON shape, with no Markdown or commentary:
 {{"status":"answered|partial|cannot_fulfil|no_evidence",
   "claims":[{{"text":"one sentence","evidence":["E1"]}}],

@@ -91,3 +91,36 @@ def test_whole_document_repair_calls_all_sections_again():
 
     assert generator.calls == 4
     assert all(item.passed for item in result.verifications)
+
+
+def test_only_targeted_repair_passes_verifier_feedback_into_prompt():
+    class PromptRecordingGenerator:
+        def __init__(self, responses: list[str]):
+            self.responses = list(responses)
+            self.prompts: list[str] = []
+
+        def generate(self, prompt: str) -> str:
+            self.prompts.append(prompt)
+            return self.responses.pop(0)
+
+    whole_gen = PromptRecordingGenerator(
+        [
+            response("GCP is supported."),
+            response("AWS is supported."),
+            response("AWS is supported."),
+            response("AWS is supported."),
+        ]
+    )
+    targeted_gen = PromptRecordingGenerator(
+        [
+            response("GCP is supported."),
+            response("AWS is supported."),
+            response("AWS is supported."),
+        ]
+    )
+
+    run_repair(REQS, EVIDENCE, CONTEXTS, whole_gen, RepairCondition.WHOLE_DOCUMENT)
+    run_repair(REQS, EVIDENCE, CONTEXTS, targeted_gen, RepairCondition.TARGETED_SECTION)
+
+    assert not any("Repair rules:" in p for p in whole_gen.prompts[2:])
+    assert "Repair rules:" in targeted_gen.prompts[2]

@@ -66,21 +66,22 @@ def run_repair(
     if failed and condition is not RepairCondition.NONE:
         if condition is RepairCondition.WHOLE_DOCUMENT:
             repair_ids = {requirement.requirement_id for requirement in requirements}
+            feedback = None
         else:
             repair_ids = set(failed)
+            feedback = {
+                requirement_id: [
+                    issue.detail for issue in failed[requirement_id].issues
+                ]
+                for requirement_id in repair_ids
+                if requirement_id in failed
+            }
 
         repair_requirements = [
             requirement
             for requirement in requirements
             if requirement.requirement_id in repair_ids
         ]
-        feedback = {
-            requirement_id: [
-                issue.detail for issue in failed[requirement_id].issues
-            ]
-            for requirement_id in repair_ids
-            if requirement_id in failed
-        }
         repaired_sections, repaired_verifications = _draft_and_verify(
             repair_requirements,
             evidence_by_requirement,

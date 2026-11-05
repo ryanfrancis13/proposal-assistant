@@ -11,7 +11,10 @@ class SyntheticCase:
 TRAPS = (
     ("unsupported_service", "Please migrate 35 servers to Google Cloud Platform."),
     ("discount_cap", "We have 40 servers and require a 20% discount."),
-    ("price_floor", "We have 40 servers and require a 15% discount."),
+    (
+        "price_floor",
+        "We have 20 servers needing ongoing support for a 24-month term with 15 CSPS accounts and require a 15% discount.",
+    ),
     ("deadline", "We have 40 servers and need completion within 2 months."),
     ("certification", "We have 35 servers and require HIPAA compliance."),
     ("no_coverage", "We have 40 servers and require mainframe migration."),

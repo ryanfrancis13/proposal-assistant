@@ -39,6 +39,17 @@ def test_synthetic_cases_are_reproducible_and_cover_traps():
     }
 
 
+def test_price_floor_synthetic_trap_triggers_r5_violation():
+    from proposal_assistant.extraction import extract_quote_inputs
+    from proposal_assistant.quote_builder import build_quote
+
+    cases = generate_synthetic_cases(7, seed=0)
+    price_floor_case = next(case for case in cases if case.trap == "price_floor")
+    quote, _ = build_quote(extract_quote_inputs(price_floor_case.text))
+
+    assert "R5" in {v.rule_id for v in quote.violations}
+
+
 def test_text_case_runner_uses_stable_ids_and_repeats():
     cases = [(case.case_id, case.text) for case in generate_synthetic_cases(2)]
 

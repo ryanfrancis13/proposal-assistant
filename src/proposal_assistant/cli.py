@@ -36,7 +36,13 @@ def main() -> None:
         settings=settings,
         condition=RepairCondition(args.condition),
     )
-    export_docx(args.output, result.repair.draft, result.quote, result.assumptions)
+    export_docx(
+        args.output,
+        result.repair.draft,
+        result.quote,
+        result.assumptions,
+        result.requirements,
+    )
     passed = sum(item.passed for item in result.repair.verifications)
     print(f"Wrote {args.output}")
     print(f"Verified sections: {passed}/{len(result.repair.verifications)}")

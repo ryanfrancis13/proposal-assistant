@@ -40,6 +40,13 @@ def _mean_interval(values: list[float], z: float = 1.96) -> tuple[float, float]:
     return mean - margin, mean + margin
 
 
+def _is_v0_record(record: ExperimentRecord) -> bool:
+    return (
+        record.error is not None
+        or GENERATION_FAILURE_ID in record.violation_counts
+    )
+
+
 def aggregate_records(records: Iterable[ExperimentRecord]) -> list[dict]:
     grouped: dict[RepairCondition, list[ExperimentRecord]] = {}
     for record in records:
@@ -47,21 +54,26 @@ def aggregate_records(records: Iterable[ExperimentRecord]) -> list[dict]:
 
     summaries = []
     for condition, items in grouped.items():
-        strict_count = sum(item.strict_compliance for item in items)
-        loose_values = [item.loose_compliance for item in items]
-        call_values = [float(item.llm_calls) for item in items]
+        valid_items = [item for item in items if not _is_v0_record(item)]
+        v0_failures = len(items) - len(valid_items)
+        strict_count = sum(item.strict_compliance for item in valid_items)
+        loose_values = [item.loose_compliance for item in valid_items]
+        call_values = [float(item.llm_calls) for item in valid_items]
         violations: dict[str, int] = {}
-        for item in items:
+        for item in valid_items:
             for rule_id, count in item.violation_counts.items():
                 violations[rule_id] = violations.get(rule_id, 0) + count
-        strict_ci = _wilson_interval(strict_count, len(items))
+        strict_ci = _wilson_interval(strict_count, len(valid_items))
         loose_ci = _mean_interval(loose_values)
         call_ci = _mean_interval(call_values)
         summaries.append(
             {
                 "condition": condition.value,
-                "n": len(items),
-                "strict_compliance": strict_count / len(items) if items else 0.0,
+                "n": len(valid_items),
+                "v0_failures": v0_failures,
+                "strict_compliance": (
+                    strict_count / len(valid_items) if valid_items else 0.0
+                ),
                 "strict_ci95_low": strict_ci[0],
                 "strict_ci95_high": strict_ci[1],
                 "loose_compliance": sum(loose_values) / len(loose_values)
@@ -87,6 +99,8 @@ def run_experiment(
     generator_factory: Callable[[], object],
     repeats: int = 1,
     conditions: tuple[RepairCondition, ...] = tuple(RepairCondition),
+    progress: Callable[[str], None] | None = print,
+    checkpoint_dir: Path | None = None,
 ) -> list[ExperimentRecord]:
     cases = [
         (rfp_path.stem, rfp_path.read_text(encoding="utf-8"))
@@ -99,6 +113,8 @@ def run_experiment(
         generator_factory,
         repeats,
         conditions,
+        progress=progress,
+        checkpoint_dir=checkpoint_dir,
     )
 
 
@@ -109,11 +125,20 @@ def run_experiment_cases(
     generator_factory: Callable[[], object],
     repeats: int = 1,
     conditions: tuple[RepairCondition, ...] = tuple(RepairCondition),
+    progress: Callable[[str], None] | None = print,
+    checkpoint_dir: Path | None = None,
 ) -> list[ExperimentRecord]:
     records: list[ExperimentRecord] = []
+    total_trials = len(cases) * len(conditions) * repeats
+    completed_trials = 0
     for rfp_id, rfp_text in cases:
         for condition in conditions:
             for run_index in range(1, repeats + 1):
+                if progress:
+                    progress(
+                        f"Starting trial {completed_trials + 1}/{total_trials}: "
+                        f"{rfp_id} / {condition.value} / repeat {run_index}"
+                    )
                 generator = generator_factory()
                 try:
                     result = run_pipeline(
@@ -138,6 +163,11 @@ def run_experiment_cases(
                             error=f"{type(exc).__name__}: {exc}",
                         )
                     )
+                    completed_trials += 1
+                    if checkpoint_dir:
+                        write_results(records, checkpoint_dir)
+                    if progress:
+                        progress(f"Finished trial {completed_trials}/{total_trials}: V0")
                     continue
                 verifications = result.repair.verifications
                 total_checks = len(verifications) * len(CHECK_IDS)
@@ -167,6 +197,15 @@ def run_experiment_cases(
                         llm_calls=int(getattr(generator, "calls", 0)),
                     )
                 )
+                completed_trials += 1
+                if checkpoint_dir:
+                    write_results(records, checkpoint_dir)
+                if progress:
+                    progress(
+                        f"Finished trial {completed_trials}/{total_trials}: "
+                        f"strict={records[-1].strict_compliance}, "
+                        f"calls={records[-1].llm_calls}"
+                    )
     return records
 
 
@@ -183,6 +222,7 @@ def write_results(records: list[ExperimentRecord], output_dir: Path) -> None:
         fields = [
             "condition",
             "n",
+            "v0_failures",
             "strict_compliance",
             "strict_ci95_low",
             "strict_ci95_high",

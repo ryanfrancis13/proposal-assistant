@@ -1,5 +1,5 @@
 models:
-  generator: "meta/llama-3.2-11b-vision-instruct"
+  generator: "nvidia/nemotron-3-ultra-550b-a55b"
   embedding: "nvidia/nemotron-3-embed-1b"
 
 retrieval:

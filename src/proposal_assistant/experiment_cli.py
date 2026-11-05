@@ -16,6 +16,12 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--output", type=Path, default=Path("results"))
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=45.0,
+        help="per NIM request timeout in seconds",
+    )
     return parser
 
 
@@ -25,7 +31,7 @@ def main() -> None:
     cases = generate_synthetic_cases(args.count, args.seed)
 
     def generator_factory() -> NIMGenerator:
-        return NIMGenerator(settings.generator_model)
+        return NIMGenerator(settings.generator_model, timeout=args.timeout)
 
     records = run_experiment_cases(
         [(case.case_id, case.text) for case in cases],
@@ -33,6 +39,7 @@ def main() -> None:
         settings,
         generator_factory,
         repeats=args.repeats,
+        checkpoint_dir=args.output,
     )
     write_results(records, args.output)
     print(f"Wrote {len(records)} trial records to {args.output}")

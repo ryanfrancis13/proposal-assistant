@@ -25,6 +25,24 @@ def test_extraction_reads_explicit_platform_and_discount():
     assert inputs.negotiated_discount_pct == 0.20
 
 
+def test_extraction_reads_spelled_out_percent_discount():
+    inputs = extract_quote_inputs(
+        "We have about 35 servers. Budget is tight, so we'd want at least a 20 percent discount on your standard rates."
+    )
+
+    assert inputs.server_count == 35
+    assert inputs.negotiated_discount_pct == 0.20
+
+
+def test_extraction_reads_servers_with_descriptive_adjectives():
+    inputs = extract_quote_inputs(
+        "Provision, deploy, and maintain 50 dedicated high-performance bare-metal servers with 24/7 enterprise technical support."
+    )
+
+    assert inputs.server_count == 50
+    assert inputs.support_requested is True
+
+
 def test_requirements_are_traceable_to_original_sentences():
     requirements = extract_requirements(
         "We have 40 servers. We need this done within 4 months."

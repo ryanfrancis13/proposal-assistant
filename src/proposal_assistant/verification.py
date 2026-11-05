@@ -9,7 +9,11 @@ from proposal_assistant.models import (
 
 
 _MONEY_PATTERN = re.compile(
-    r"(?:INR|Rs\.?|₹)\s*[\d,]+(?:\.\d{1,2})?",
+    r"(?:INR|Rs\.?|₹)\s*\d[\d,]*(?:\.\d{1,2})?",
+    flags=re.IGNORECASE,
+)
+_DISCOUNT_PATTERN = re.compile(
+    r"(\d+(?:\.\d+)?)\s*(?:%|percent)\s*discount",
     flags=re.IGNORECASE,
 )
 _FORBIDDEN_CAPABILITIES = {
@@ -19,6 +23,10 @@ _FORBIDDEN_CAPABILITIES = {
     "mainframe": "mainframe",
     "hipaa": "HIPAA mappings",
 }
+_NEGATION_PATTERN = re.compile(
+    r"\b(?:not|no|never|cannot|can't|doesn't|don't|unsupported|excluded|outside)\b",
+    flags=re.IGNORECASE,
+)
 _GUARANTEE_WORDS = ("guarantee", "guaranteed", "will achieve", "will reduce")
 
 
@@ -49,19 +57,30 @@ def verify_section(
 
         lowered = claim.text.lower()
         for phrase, label in _FORBIDDEN_CAPABILITIES.items():
-            if phrase in lowered and not any(
-                marker in lowered for marker in ("not", "do not", "doesn't", "cannot")
+            if re.search(rf"\b{re.escape(phrase)}\b", lowered) and not _NEGATION_PATTERN.search(
+                lowered
             ):
                 issues.append(
                     _issue("V2", f"claim presents unsupported capability: {label}")
                 )
-        if any(word in lowered for word in _GUARANTEE_WORDS):
+        if any(word in lowered for word in _GUARANTEE_WORDS) and not _NEGATION_PATTERN.search(
+            lowered
+        ):
             issues.append(_issue("V3", "claim uses guarantee or target language"))
 
         for amount in _MONEY_PATTERN.findall(claim.text):
             normalized = re.sub(r"[^\d.]", "", amount)
             if normalized not in valid_amounts:
                 issues.append(_issue("V4", f"unapproved currency amount: {amount}"))
+
+        for pct_match in _DISCOUNT_PATTERN.findall(claim.text):
+            if float(pct_match) > 15.0 and not _NEGATION_PATTERN.search(lowered):
+                issues.append(
+                    _issue(
+                        "V4",
+                        f"claim offers negotiated discount above 15% cap: {pct_match}%",
+                    )
+                )
 
         if (
             context.deadline_weeks is not None

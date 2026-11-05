@@ -16,7 +16,12 @@ class EvidenceRetriever:
 
     def __init__(self, raw_dir: Path, chunk_size: int):
         self.chunks = ingest_documents(raw_dir, chunk_size)
-        self._index = BM25Okapi([_tokens(chunk.text) for chunk in self.chunks])
+        self._index = BM25Okapi(
+            [
+                _tokens(f"{chunk.source_file} {chunk.section} {chunk.text}")
+                for chunk in self.chunks
+            ]
+        )
 
     def search(self, query: str, top_k: int = 5) -> list[Evidence]:
         if not query.strip() or not self.chunks:
